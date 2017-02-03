@@ -9,9 +9,12 @@ RUN /usr/bin/npm install
 RUN /usr/bin/npm install -g bower grunt coffee-script 
 RUN /usr/bin/bower install --allow-root  
 RUN /usr/bin/grunt build    
-RUN python manage.py syncdb 
-RUN python manage.py migrate 
+ADD surveys.json / 
+RUN python manage.py syncdb --noinput
+RUN ./docker/create_demo_user.sh
+RUN python manage.py migrate
+RUN python manage.py loaddata /surveys.json
 ENV DEFAULT_KOBO_USER admin 
 ENV DEFAULT_KOBO_PASS pass 
-CMD ./docker/create_demo_user.sh && /usr/bin/python manage.py gruntserver 0.0.0.0:8000 
+CMD /usr/bin/python manage.py gruntserver 0.0.0.0:8000 
 EXPOSE 8000
