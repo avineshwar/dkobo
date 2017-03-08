@@ -2,7 +2,7 @@ FROM debian:jessie
 COPY . .    
 RUN apt-get update && apt-get install -y python-pip python2.7-dev libxml2 libxml2-dev libxslt1-dev curl libffi-dev git libpq-dev  
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get install -y nodejs  
+RUN apt-get install -y nodejs default-jdk 
 RUN pip install -r requirements.txt 
 RUN which npm    
 RUN /usr/bin/npm install 
