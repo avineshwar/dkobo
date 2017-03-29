@@ -74,9 +74,11 @@ exec { 'manage.py_3' :
         require      => Exec['manage.py_2']
 }
 
+# need to check with & and nohup. Something like "/usr/bin/nohup $below_command_value > 1 2>&1 &"
+# to save the pid, we can immediately follow the above with echo $! or grep it from "ps -ef"
 exec { 'manage.py_4' :
         cwd          => '/home/avineshwar/dkobo-master',
-        command      => '/home/avineshwar/pykobo/bin/python manage.py gruntserver 0.0.0.0:8000', # need to check with "&"
+        command      => '/home/avineshwar/pykobo/bin/python manage.py gruntserver 0.0.0.0:8000',
         timeout      => 0,
 	require      => [Exec['set_env'],Exec['manage.py_3']]
 }
