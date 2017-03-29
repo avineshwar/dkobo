@@ -1,7 +1,11 @@
-# Anything after a hash is considered as a comment.
-# This file is tested to work on Debian Jessie x64 on AWS.
-# Because the file is tested to work manually, a failure is usually because of a "Catch 22". Putting more constraint is a solution.
-# Keeping the configurations as minimized and simplified as they can be is a solution to go with.
+## Anything after a hash is considered as a comment.
+## This file is tested to work on Debian Jessie x64 on AWS.
+## This file is tested to work manually and a failure is usually because of a "Catch 22" or because of how automation tools behave.  Being very specific or over-constraining is a solution.
+## If normal is non-admin user and root is an admin user, then a typical execution scenario will be:
+## $ su -l root -c "cd /home/normal && puppet apply dkobo_app.pp --verbose"
+## A simple sudo (which would have been great) is either bound to fail or is going to misdirect the simplicity because bower isn't consistent with sudo.
+## Keeping the configurations as minimized and simplified as they can be is a solution to go with.
+
 
 exec { 'git_download' :
 	command      => '/usr/bin/wget https://github.com/humanprojectinc/dkobo/archive/master.zip && /usr/bin/unzip master.zip && /bin/mkdir /home/avineshwar/pykobo'# && /bin/chown avineshwar:avineshwar /home/avineshwar/pykobo'	
