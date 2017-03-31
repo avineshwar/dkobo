@@ -8,11 +8,11 @@
 
 
 exec { 'git_download' :
-	command      => '/usr/bin/wget https://github.com/humanprojectinc/dkobo/archive/master.zip && /usr/bin/unzip master.zip && /bin/mkdir /home/avineshwar/pykobo'# && /bin/chown avineshwar:avineshwar /home/avineshwar/pykobo'	
+	command      => '/usr/bin/wget https://github.com/humanprojectinc/dkobo/archive/master.zip && /usr/bin/unzip master.zip && /bin/mkdir /home/admin/pykobo'# && /bin/chown avineshwar:avineshwar /home/avineshwar/pykobo'	
 }
 
 exec { 'set_env' :
-	command      => '/bin/echo "export DEFAULT_KOBO_USER=admin" >> /home/avineshwar/.bashrc && /bin/echo "export DEFAULT_KOBO_PASS=pass" >> /home/avineshwar/.bashrc'
+	command      => '/bin/echo "export DEFAULT_KOBO_USER=admin" >> /home/admin/.bashrc && /bin/echo "export DEFAULT_KOBO_PASS=pass" >> /home/admin/.bashrc'
 }
 
 class { 'python' :
@@ -26,24 +26,24 @@ class { 'python' :
 python::virtualenv { 'pykobo' :
 	ensure       => present,
 	version      => 'system',
-	requirements => '/home/avineshwar/dkobo-master/requirements.txt',
+	requirements => '/home/admin/dkobo-master/requirements.txt',
 	systempkgs   => true,
 	distribute   => false,
-	venv_dir     => '/home/avineshwar/pykobo',
-	owner        => 'avineshwar',
-	group        => 'avineshwar',
+	venv_dir     => '/home/admin/pykobo',
+	owner        => 'admin',
+	group        => 'admin',
 	require      => [Exec['git_download'], Class['python']],
 	before       => [Exec['npm'], Exec['bower']]
 }
 
 exec { 'npm' :
-	cwd          => '/home/avineshwar/dkobo-master',
+	cwd          => '/home/admin/dkobo-master',
 	command      => '/usr/bin/npm install --verbose && /usr/bin/npm install -g bower grunt coffee-script --verbose',
 	require      => Exec['git_download']
 }
 
 exec { 'bower' :
-	cwd          => '/home/avineshwar/dkobo-master',
+	cwd          => '/home/admin/dkobo-master',
 	command       => '/usr/bin/bower install --allow-root -V',
 	#command      => '/bin/su -l root -c "cd /home/avineshwar/dkobo-master/ && bower install --install-root -V"',
 	require      => Exec['npm']
@@ -51,34 +51,34 @@ exec { 'bower' :
 
 # needs root
 exec { 'grunt' :
-	cwd          => '/home/avineshwar/dkobo-master/',
+	cwd          => '/home/admin/dkobo-master/',
 	command      => '/usr/bin/grunt build -v',
 	require      => Exec['bower']
 }
 
 exec { 'manage.py_1' :
-	cwd          => '/home/avineshwar/dkobo-master',
-	command      => '/home/avineshwar/pykobo/bin/python manage.py syncdb --noinput',
+	cwd          => '/home/admin/dkobo-master',
+	command      => '/home/admin/pykobo/bin/python manage.py syncdb --noinput',
 	require      => Exec['grunt']
 }
 
 exec { 'manage.py_2' :
-        cwd          => '/home/avineshwar/dkobo-master',
-        command      => '/home/avineshwar/pykobo/bin/python manage.py migrate',
+        cwd          => '/home/admin/dkobo-master',
+        command      => '/home/admin/pykobo/bin/python manage.py migrate',
         require      => Exec['manage.py_1']
 }
 
 exec { 'manage.py_3' :
-        cwd          => '/home/avineshwar/dkobo-master',
-        command      => '/home/avineshwar/pykobo/bin/python manage.py loaddata /surveys.json',
+        cwd          => '/home/admin/dkobo-master',
+        command      => '/home/admin/pykobo/bin/python manage.py loaddata /surveys.json',
         require      => Exec['manage.py_2']
 }
 
 # need to check with & and nohup. Something like "/usr/bin/nohup $below_command_value > 1 2>&1 &"
 # to save the pid, we can immediately follow the above with echo $! or grep it from "ps -ef"
 exec { 'manage.py_4' :
-        cwd          => '/home/avineshwar/dkobo-master',
-        command      => '/home/avineshwar/pykobo/bin/python manage.py gruntserver 0.0.0.0:8000',
+        cwd          => '/home/admin/dkobo-master',
+        command      => '/home/admin/pykobo/bin/python manage.py gruntserver 0.0.0.0:8000',
         timeout      => 0,
 	require      => [Exec['set_env'],Exec['manage.py_3']]
 }
